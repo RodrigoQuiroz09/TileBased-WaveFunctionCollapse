@@ -10,9 +10,12 @@ public class Module
     public int weight=1;
     public Sprite sprite;
 
+    public bool canRotate;
+
     public Color[] UpSocket;
     public Color[] RightSocket;
-    public Color[] LeftSocket;
     public Color[] DownSocket;
+    public Color[] LeftSocket;
+
 
 }
