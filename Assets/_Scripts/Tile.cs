@@ -24,7 +24,7 @@ public class Tile
 
     public Tile Rotate(int num)
     {
-        rotation=90*num;
+        rotation=-90*num;
         string[] newSockets={"","","",""};
 
         int len = newSockets.Length;

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class Cell 
 {
     public List<int> possibleTiles;
@@ -15,5 +15,12 @@ public class Cell
         {
             possibleTiles.Add(i);
         }
+    }
+
+    public override string ToString()
+    {
+        
+        return "Collapsed: " + IsCollapsed +  " Possible Tiles: "+String.Join("; ", possibleTiles);
+        //return base.ToString();
     }
 }

@@ -175,7 +175,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 5.16
   m_Depth: -1
   m_CullingMask:
@@ -265,7 +265,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1787345539, guid: d0e6aff184bdc01469c142a2cdcc4018, type: 3}
+  m_Sprite: {fileID: 1093933911, guid: d0e6aff184bdc01469c142a2cdcc4018, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -283,14 +283,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 935824889}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.6987074, w: -0.71540755}
   m_LocalPosition: {x: -8.08, y: 3.87, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -271.353}
 --- !u!1 &2094236980
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,3 +340,4 @@ MonoBehaviour:
   rows: 2
   prefab: {fileID: 5227857412129135156, guid: 4d5c24216a78e3a4191c1700514166bf, type: 3}
   Sample: {fileID: 2077270962, guid: d0e6aff184bdc01469c142a2cdcc4018, type: 3}
+  gridSprites: []
