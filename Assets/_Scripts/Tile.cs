@@ -14,15 +14,8 @@ public class Tile
         sprite = img;
         this.sockets = sockets;
     }
-
-    public Tile(Sprite img, string[] sockets,int rotation)
-    {
-        sprite = img;
-        this.sockets = sockets;
-        this.rotation = rotation;
-    }
-
-    public Tile Rotate(int num)
+    
+    public void Rotate(int num)
     {
         rotation=-90*num;
         string[] newSockets={"","","",""};
@@ -33,8 +26,5 @@ public class Tile
         {
             newSockets[i] = sockets[(i - num + len) % len];
         }
-
-        return new Tile(this.sprite, newSockets, rotation);
-
     }
 }

@@ -72,13 +72,31 @@ public class GridManager : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-                    WFC();
+            WFC();
         }
     }
 
     void WFC()
     {
 
+        List<Cell> copyGridCell = new List<Cell>(gridCells);
+        copyGridCell = copyGridCell.Where(cell=> !cell.IsCollapsed).ToList();
+
+        if(copyGridCell.Count==0) return;
+
+        copyGridCell.Sort((a, b) => { return a.possibleTiles.Count - b.possibleTiles.Count; });
+
+
+
+        var subList = copyGridCell.Where(c => copyGridCell[0].possibleTiles.Count >= c.possibleTiles.Count);
+
+
+        var cellPick = subList.ElementAt(UnityEngine.Random.Range(0, subList.ToList<Cell>().Count)) ;
+
+        cellPick.IsCollapsed = true;
+        var pick = cellPick.possibleTiles[UnityEngine.Random.Range(0, cellPick.possibleTiles.Count)];
+        cellPick.possibleTiles = new List<int> { pick };
+        
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < cols; j++)
@@ -100,23 +118,6 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        List<Cell> copyGridCell = new List<Cell>(gridCells);
-        copyGridCell = copyGridCell.Where(cell=> !cell.IsCollapsed).ToList();
-
-        if(copyGridCell.Count==0) return;
-
-        copyGridCell.Sort((a, b) => { return a.possibleTiles.Count - b.possibleTiles.Count; });
-
-        var subList = copyGridCell.Where(c => copyGridCell[0].possibleTiles.Count >= c.possibleTiles.Count);
-
-        var cellPick = subList.ElementAt(UnityEngine.Random.Range(0, subList.ToList<Cell>().Count)) ;
-
-        cellPick.IsCollapsed = true;
-        var pick = cellPick.possibleTiles[UnityEngine.Random.Range(0, cellPick.possibleTiles.Count)];
-        cellPick.possibleTiles = new List<int> { pick };
-        
-
-
         List<Cell> nextGrid = new List<Cell>();
 
         for (int i = 0; i < rows; i++)
@@ -131,7 +132,8 @@ public class GridManager : MonoBehaviour
                 }
                 else
                 {
-                    int[] options = new int[5] { BLANK,UP,RIGHT,DOWN,LEFT };
+                    List<int> options =  gridCells[index].possibleTiles;
+
                     //Look Up
                     if (i>0)
                     {
@@ -169,6 +171,7 @@ public class GridManager : MonoBehaviour
                             validOptions.AddRange(valid.ToList());
                         }
                         CheckValid(ref options, validOptions);
+                        
                     } 
 
                     //Look Left
@@ -183,29 +186,26 @@ public class GridManager : MonoBehaviour
                         }
                         CheckValid(ref options, validOptions);
                     }
-
                     nextGrid.Add( gridCells[index]);
-                    nextGrid[index].possibleTiles = options.ToList();
+                    nextGrid[index].possibleTiles = options.ToList();   
                 }
-        
             }
-            
         }
-
         gridCells = nextGrid;
     }
-
-    void CheckValid(ref int[]options, List<int>valid)
+    //{0,1,2,3,4}
+    void CheckValid(ref List<int>options, List<int>valid)
     {
-        for (int i = options.Length-1; i >=0 ; i--)
+        for (int i = options.Count-1; i >=0 ; i--)
         {
             if(!valid.Contains(options[i]))
             {
+                options.RemoveAt(i);
 
-                options = options.Where((source, index) => index != i).ToArray();
                 //Debug.Log(String.Join("; ", options));
             }
         }
+  
     }
 
     void GetTilesFromDataSheet()
@@ -229,14 +229,17 @@ public class GridManager : MonoBehaviour
             else
             {
                 limitTiles += 3;
-                tiles.Add( new Tile(
-                    spriteSheetData.modules[counterModules].sprite,
-                    ConcatSockets(spriteSheetData.modules[counterModules])
-                    ));
-                
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < SIDES; i++)
                 {
-                    tiles.Add(tiles[counterModules].Rotate(i+1));
+                    tiles.Add( new Tile(
+                        spriteSheetData.modules[counterModules].sprite,
+                        ConcatSockets(spriteSheetData.modules[counterModules])
+                        ));      
+                }
+                
+                for (int i = 1; i < 4; i++)
+                {
+                    tiles[counterModules+i].Rotate(i);
                 }
                 counterModules+=4;
             }
