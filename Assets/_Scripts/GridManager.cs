@@ -5,11 +5,6 @@ using System.Linq;
 using System;
 public class GridManager : MonoBehaviour
 {
-    const int BLANK = 0;
-    const int UP = 1;
-    const int RIGHT = 2;
-    const int DOWN = 3;
-    const int LEFT = 4;
     const int SIDES = 4;
     public SpriteSheetData spriteSheetData;
 
@@ -28,7 +23,6 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
-
         NormatizationOfColor();
         GetTilesFromDataSheet();
         CreationOfGrid();
@@ -42,47 +36,23 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Implementation of a instance of the algorithm. Searchs for the adjacent cells for each cell and remove the not valid options.
+    /// <para>
+    /// TODO: Bactracking of the search in the near neighbours (Save comparisons). 
+    /// </para>
+    /// <para>
+    /// TODO: Remove redundant tiles (Optimization). 
+    /// </para>
+    /// <para>
+    /// TODO: Check in the search of the possible tiles in the cells, collapse the cells with only 1 possible tile (Optimization).
+    ///</para>
+    /// </summary>
     void WFC()
     {
+        PickRandomWithLeastEntropy();
 
-        List<Cell> copyGridCell = new List<Cell>(gridCells);
-        copyGridCell = copyGridCell.Where(cell=> !cell.IsCollapsed).ToList();
-
-        if(copyGridCell.Count==0) return;
-
-        copyGridCell.Sort((a, b) => { return a.possibleTiles.Count - b.possibleTiles.Count; });
-
-
-
-        var subList = copyGridCell.Where(c => copyGridCell[0].possibleTiles.Count >= c.possibleTiles.Count);
-
-
-        var cellPick = subList.ElementAt(UnityEngine.Random.Range(0, subList.ToList<Cell>().Count)) ;
-
-        cellPick.IsCollapsed = true;
-        var pick = cellPick.possibleTiles[UnityEngine.Random.Range(0, cellPick.possibleTiles.Count)];
-        cellPick.possibleTiles = new List<int> { pick };
-        
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
-                Cell cell = gridCells[j + i * rows];
-
-                if(cell.IsCollapsed)
-                {
-                    int index = cell.possibleTiles[0];
-                    gridSprites[j + i * rows].GetComponent<SpriteRenderer>().sprite=tiles[index].sprite;
-                    gridSprites[j + i * rows].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
-                    gridSprites[j + i * rows].GetComponent<Transform>().rotation = Quaternion.Euler(0,0,tiles[index].rotation) ;
-              
-                }
-                else
-                {
-                    gridSprites[j + i * rows].GetComponent<SpriteRenderer>().color = new Color(0, 0, 0);
-                }
-            }
-        }
+        DrawGrid();
 
         List<Cell> nextGrid = new List<Cell>();
 
@@ -159,18 +129,83 @@ public class GridManager : MonoBehaviour
         gridCells = nextGrid;
     }
 
+    /// <summary>
+    /// Grab the Cells that are not collapsed and choose the ones with least entropy (least amount of possible tiles).
+    /// Pick a random cell to collapse bewtween the filtered entropy. Pick a random possible tile and saves it.
+    /// </summary>
+    void PickRandomWithLeastEntropy()
+    {
+        List<Cell> copyGridCell = new List<Cell>(gridCells);
+        copyGridCell = gridCells.Where(cell => !cell.IsCollapsed).ToList();
+
+        if(copyGridCell.Count==0) return;
+
+        var minEntropy = copyGridCell.Select(cell=>cell.possibleTiles.Count)?.Min();
+        copyGridCell = copyGridCell.Where(cell=> cell.possibleTiles.Count==minEntropy).ToList();
+
+        var cellPick = copyGridCell.ElementAt(UnityEngine.Random.Range(0, copyGridCell.Count)) ;
+        cellPick.IsCollapsed = true;
+        var pick = cellPick.possibleTiles[UnityEngine.Random.Range(0, cellPick.possibleTiles.Count)];
+        cellPick.possibleTiles = new List<int> { pick };
+    }
+
+    /// <summary>
+    /// Draw the cells that are collapsed in the grid of sprites.
+    /// </summary>
+    void DrawGrid()
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                Cell cell = gridCells[j + i * rows];
+
+                if(cell.IsCollapsed)
+                {
+                    int index = cell.possibleTiles[0];
+                    gridSprites[j + i * rows].GetComponent<SpriteRenderer>().sprite=tiles[index].sprite;
+                    gridSprites[j + i * rows].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
+                    gridSprites[j + i * rows].GetComponent<Transform>().rotation = Quaternion.Euler(0,0,tiles[index].rotation) ;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Compares what is valid for the tile the cell is looking at and removes the not valid ones in the options of the cell.
+    /// <para>
+    ///  <item>
+    ///    <term>valid</term>
+    ///   <description>{0,2}</description>
+    ///  </item>
+    /// </para>
+    /// <para>
+    ///  <item>
+    ///    <term>options</term>
+    ///   <description>{0,1,2,3,4}</description>
+    ///  </item>
+    /// </para>
+    /// <para>
+    ///  <item>
+    ///    <term>options (output)</term>
+    ///   <description>{0,2}</description>
+    ///  </item>
+    /// </para>
+    /// </summary>
+    /// <param name="options">Options available at the moment for a certain cell. Is a reference</param>
+    /// <param name="valid">Valid option depending of the adjacency rules</param>
     void CheckValid(ref List<int>options, List<int>valid)
     {
         for (int i = options.Count-1; i >=0 ; i--)
         {
-            if(!valid.Contains(options[i]))
-            {
-                options.RemoveAt(i);
-            }
+            if(!valid.Contains(options[i])) options.RemoveAt(i);  
         }
-  
     }
 
+    /// <summary>
+    /// Get the SpriteSheetData object and map its tiles with the respective configured and normalized sockets (Rotates the ones marked by the Module).
+    /// Creates the rules of adjacency rules of compatible sockets with its respective side in the Tiles script.
+    /// </summary>
     void GetTilesFromDataSheet()
     {
         tiles = new List<Tile>();
@@ -216,6 +251,11 @@ public class GridManager : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Create a serialization with the normalized tiles socket values and create strings that will work as a comparison point.
+    /// </summary>
+    /// <param name="module"> The tile to normalize</param>
+    /// <returns>The new relations of sockets and normalization of color</returns>
     string [] ConcatSockets(Module module)
     {
         string[] socketsConcat = {"","","",""};
@@ -231,10 +271,16 @@ public class GridManager : MonoBehaviour
         return socketsConcat;
     }
 
+
+    /// <summary>
+    /// Create a association with every unique color of the tile to a number for a faster concatenation and comparison.
+    /// For Each module it extract each face of the tile (sockets) and maps the into a dictionary {colorNormalization}
+    /// </summary>
     void NormatizationOfColor()
     {
         int counter=0;
         colorNormalization = new Dictionary<Color, int>();
+
         foreach (var item in spriteSheetData.modules)
         {
             for (int i = 0; i < spriteSheetData.sockets; i++)
@@ -263,8 +309,11 @@ public class GridManager : MonoBehaviour
         }
     }
 
-
-
+    /// <summary>
+    /// Instanciates a generic prefab with a sprite renderer (Can change in the future) and puts them in a list.
+    /// Aligns them into a grid depending of the sample size and paints it black.
+    /// Create a List od Cells which will be used in the main algorithm.
+    /// </summary>
     void CreationOfGrid()
     {
         gridSprites = new List<GameObject>();
@@ -279,6 +328,7 @@ public class GridManager : MonoBehaviour
                 tileSize = tileSpriteRenderer.bounds.size.x;
                 float posX = j * tileSpriteRenderer.bounds.size.x;
                 float posY = i * -tileSpriteRenderer.bounds.size.x;
+                tileSpriteRenderer.color=new Color(0, 0, 0);
 
                 tile.transform.position = new Vector2(posX, posY);
 

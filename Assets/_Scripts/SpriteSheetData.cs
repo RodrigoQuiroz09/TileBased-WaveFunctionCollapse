@@ -14,6 +14,9 @@ public class SpriteSheetData : ScriptableObject
     public Module [] modules;
 
 
+    /// <summary>
+    /// Proportionate the steps depending of the size of the tiles and the amount of sockets to get a color.
+    /// </summary>
     public void ConfigColors()
     {
         foreach (var item in modules)

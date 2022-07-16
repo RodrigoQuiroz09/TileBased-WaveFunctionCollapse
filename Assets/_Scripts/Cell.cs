@@ -18,10 +18,12 @@ public class Cell
         }
     }
 
+    /// <summary>
+    /// Debugging purposes
+    /// </summary>
+    /// <returns> Text with the content of variables in this cell</returns>
     public override string ToString()
     {
-        
         return "Collapsed: " + IsCollapsed +  " Possible Tiles: "+String.Join("; ", possibleTiles);
-        //return base.ToString();
     }
 }

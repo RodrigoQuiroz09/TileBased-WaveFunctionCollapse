@@ -12,6 +12,19 @@ public class Tile
     public List<int> left;
 
     public int rotation = 0;
+
+    public Tile(Sprite img, List<string>sockets)
+    {
+        sprite = img;
+      
+        this.sockets = new List<string>( sockets);
+    }
+
+    /// <summary>
+    /// Invert the string for mirrored tiles 
+    /// </summary>
+    /// <param name="str">Socket to reverse</param>
+    /// <returns>Socket reversed</returns>
     string Reverse(string str) 
     {  
         char[] chars = str.ToCharArray();  
@@ -23,18 +36,22 @@ public class Tile
         }  
         return new string(chars);  
     }  
-    public Tile(Sprite img, List<string>sockets)
-    {
-        sprite = img;
-      
-        this.sockets = new List<string>( sockets);
-    }
 
+    /// <summary>
+    /// Compare string a with string b reversed
+    /// </summary>
+    /// <param name="a"> Socket from the possible tiles</param>
+    /// <param name="b"> Socket from this tile</param>
+    /// <returns></returns>
     bool CompareSockets(string a, string b)
     {
         return a == Reverse(b);
     }
 
+    /// <summary>
+    /// Overlaps faces that correspond with each socket and saves its respecting position in the tile creating rules of adjacency 
+    /// </summary>
+    /// <param name="tiles"> All posible Tiles</param>
     public void CreateRules(List<Tile> tiles)
     {
         up = new List<int>();
@@ -69,6 +86,10 @@ public class Tile
         }
     }
 
+    /// <summary>
+    /// Save the rotation needed for the sprite and moves the sockets accordingly.
+    /// </summary>
+    /// <param name="num">Amount of rotation</param>
     public void Rotate(int num)
     {
         rotation=-90*num;

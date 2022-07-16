@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 2094236981}
   - component: {fileID: 2094236982}
   m_Layer: 0
-  m_Name: Test
+  m_Name: WFC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -252,8 +252,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteSheetData: {fileID: 11400000, guid: a97f263a04e7bc946b4fbc68bcf9915c, type: 2}
-  cols: 4
-  rows: 4
+  cols: 20
+  rows: 20
   prefab: {fileID: 5227857412129135156, guid: 4d5c24216a78e3a4191c1700514166bf, type: 3}
-  Sample: {fileID: 21300000, guid: 6f37235c49d846e43975ce19decdc08d, type: 3}
+  Sample: {fileID: 21300000, guid: 13c83525453cbe646b45def2b5ebc7f1, type: 3}
   gridSprites: []
