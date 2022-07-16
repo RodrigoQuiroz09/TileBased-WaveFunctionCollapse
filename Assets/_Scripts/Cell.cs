@@ -5,6 +5,7 @@ using System;
 public class Cell 
 {
     public List<int> possibleTiles;
+
     public bool IsCollapsed;
 
     public Cell(int num)

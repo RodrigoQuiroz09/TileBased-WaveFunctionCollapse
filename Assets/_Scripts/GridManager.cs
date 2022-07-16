@@ -24,44 +24,10 @@ public class GridManager : MonoBehaviour
     public List<Cell> gridCells;
     public List<GameObject> gridSprites;
 
-
-    int[][][] tempRules = new int[5][][]; //= new int  { { {BLANK, UP}, {BLANK, RIGHT}, {BLANK, DOWN}, {BLANK, LEFT} } };
-
-
-
     Dictionary<Color, int> colorNormalization;
 
     void Start()
     {
-        tempRules[0] = new int[4][];
-        tempRules[0][0] = new int[2] { BLANK, UP };
-        tempRules[0][1] = new int[2] { BLANK, RIGHT };
-        tempRules[0][2] = new int[2] { BLANK, DOWN };
-        tempRules[0][3] = new int[2] { BLANK,LEFT};
-        
-        tempRules[1] = new int[4][];
-        tempRules[1][0] = new int[3] { RIGHT, LEFT, DOWN };
-        tempRules[1][1] = new int[3] {LEFT, UP, DOWN};
-        tempRules[1][2] = new int[2] { BLANK, DOWN };
-        tempRules[1][3] = new int[3] { RIGHT, UP, DOWN};
-
-        tempRules[2] = new int[4][];
-        tempRules[2][0] = new int[3] { RIGHT, LEFT, DOWN};
-        tempRules[2][1] = new int[3] {LEFT, UP, DOWN};
-        tempRules[2][2] = new int[3] {RIGHT, LEFT, UP};
-        tempRules[2][3] = new int[2] { BLANK, LEFT};
-
-        tempRules[3] = new int[4][];
-        tempRules[3][0] = new int[2] { BLANK, UP};
-        tempRules[3][1] = new int[3] {LEFT, UP, DOWN};
-        tempRules[3][2] = new int[3] {RIGHT, LEFT, UP};
-        tempRules[3][3] = new int[3] { RIGHT, UP, DOWN};
-
-        tempRules[4] = new int[4][];
-        tempRules[4][0] = new int[3] { RIGHT, LEFT, DOWN };
-        tempRules[4][1] = new int[2] {BLANK, RIGHT};
-        tempRules[4][2] = new int[3] {RIGHT, LEFT, UP};
-        tempRules[4][3] = new int[3] {UP, DOWN, RIGHT};
 
         NormatizationOfColor();
         GetTilesFromDataSheet();
@@ -69,10 +35,10 @@ public class GridManager : MonoBehaviour
     }
     void Update() 
     {
-
+        WFC();
         if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-            WFC();
+            //WFC();
         }
     }
 
@@ -141,8 +107,8 @@ public class GridManager : MonoBehaviour
                         List<int> validOptions = new List<int>();
                         foreach (var option in up.possibleTiles)
                         {
-                            var valid = tempRules[option][2];
-                            validOptions.AddRange(valid.ToList());
+                            var valid = tiles[option].down;
+                            validOptions.AddRange(valid);
                         }
                         CheckValid(ref options, validOptions);
                     }
@@ -154,7 +120,7 @@ public class GridManager : MonoBehaviour
                         List<int> validOptions = new List<int>();
                         foreach (var option in right.possibleTiles)
                         {
-                            var valid = tempRules[option][3];
+                            var valid = tiles[option].left;
                             validOptions.AddRange(valid.ToList());
                         }
                         CheckValid(ref options, validOptions);
@@ -167,11 +133,10 @@ public class GridManager : MonoBehaviour
                         List<int> validOptions = new List<int>();
                         foreach (var option in down.possibleTiles)
                         {
-                            var valid = tempRules[option][0];
+                            var valid = tiles[option].up;
                             validOptions.AddRange(valid.ToList());
                         }
                         CheckValid(ref options, validOptions);
-                        
                     } 
 
                     //Look Left
@@ -181,7 +146,7 @@ public class GridManager : MonoBehaviour
                         List<int> validOptions = new List<int>();
                         foreach (var option in left.possibleTiles)
                         {
-                            var valid = tempRules[option][1];
+                            var valid = tiles[option].right;
                             validOptions.AddRange(valid.ToList());
                         }
                         CheckValid(ref options, validOptions);
@@ -193,7 +158,7 @@ public class GridManager : MonoBehaviour
         }
         gridCells = nextGrid;
     }
-    //{0,1,2,3,4}
+
     void CheckValid(ref List<int>options, List<int>valid)
     {
         for (int i = options.Count-1; i >=0 ; i--)
@@ -201,8 +166,6 @@ public class GridManager : MonoBehaviour
             if(!valid.Contains(options[i]))
             {
                 options.RemoveAt(i);
-
-                //Debug.Log(String.Join("; ", options));
             }
         }
   
@@ -212,38 +175,45 @@ public class GridManager : MonoBehaviour
     {
         tiles = new List<Tile>();
         int counterModules=0;
+        int listCounter=0;
         int limitTiles = spriteSheetData.modules.Length;
 
-        while (counterModules<limitTiles)
+        while (counterModules<limitTiles) 
+        
         {
-            
             if(!spriteSheetData.modules[counterModules].canRotate)
             {
-                
-                tiles.Add( new Tile(
+                tiles.Add(new Tile(
                     spriteSheetData.modules[counterModules].sprite,
-                    ConcatSockets(spriteSheetData.modules[counterModules])
+                    ConcatSockets(spriteSheetData.modules[counterModules]).ToList()
                     ));
                 counterModules++;
+                listCounter++;
             }
             else
             {
-                limitTiles += 3;
                 for (int i = 0; i < SIDES; i++)
                 {
                     tiles.Add( new Tile(
                         spriteSheetData.modules[counterModules].sprite,
-                        ConcatSockets(spriteSheetData.modules[counterModules])
-                        ));      
+                        ConcatSockets(spriteSheetData.modules[counterModules]).ToList()
+                        ));
+                    listCounter++;
                 }
                 
-                for (int i = 1; i < 4; i++)
+                for (int i = 3; i > 0; i--)
                 {
-                    tiles[counterModules+i].Rotate(i);
+                    tiles[listCounter-i].Rotate(i);
                 }
-                counterModules+=4;
+                counterModules++;
             }
         }
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            tiles[i].CreateRules(tiles);
+        }
+
     }
 
     string [] ConcatSockets(Module module)
@@ -307,11 +277,11 @@ public class GridManager : MonoBehaviour
                 SpriteRenderer tileSpriteRenderer = tile.GetComponent<SpriteRenderer>();
                 tileSpriteRenderer.sprite = Sample;
                 tileSize = tileSpriteRenderer.bounds.size.x;
-
                 float posX = j * tileSpriteRenderer.bounds.size.x;
                 float posY = i * -tileSpriteRenderer.bounds.size.x;
 
                 tile.transform.position = new Vector2(posX, posY);
+
                 gridSprites.Add(tile);
                 gridCells.Add(new Cell(tiles.Count));
             }
