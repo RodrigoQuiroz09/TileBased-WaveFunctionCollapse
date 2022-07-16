@@ -174,22 +174,13 @@ public class GridManager : MonoBehaviour
     /// <summary>
     /// Compares what is valid for the tile the cell is looking at and removes the not valid ones in the options of the cell.
     /// <para>
-    ///  <item>
-    ///    <term>valid</term>
-    ///   <description>{0,2}</description>
-    ///  </item>
+    ///    valid - {0,2}
     /// </para>
     /// <para>
-    ///  <item>
-    ///    <term>options</term>
-    ///   <description>{0,1,2,3,4}</description>
-    ///  </item>
+    ///    options - {0,1,2,3,4}
     /// </para>
     /// <para>
-    ///  <item>
-    ///    <term>options (output)</term>
-    ///   <description>{0,2}</description>
-    ///  </item>
+    ///    options (output) - {0,2} 
     /// </para>
     /// </summary>
     /// <param name="options">Options available at the moment for a certain cell. Is a reference</param>
